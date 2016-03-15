@@ -2,7 +2,7 @@ import glob
 import os
 from subprocess import call
 
-dataDir='/home/shawn/data/modis/'
+dataDir='/home/shawn/data/modisBBSLandcover/'
 outputDir='/home/shawn/data/modisReprojected/'
 mrtPath='/home/shawn/bin/bin/resample'
 resampleConfigFile='./resampleConfig.prm'
