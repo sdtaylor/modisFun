@@ -4,7 +4,7 @@ import os
 
 #From a list of h and v tile ranges make a list of all tiles in that grid
 #ie. ['h07v13', 'h07v14', 'h08v13', 'h08v14']
-def make_tile_list(h_tiles, v_tiles)
+def make_tile_list(h_tiles, v_tiles):
     tiles=[]
     for h in h_tiles:
         for v in v_tiles:
@@ -19,16 +19,34 @@ def date_to_modis_timestamp(d):
     doy=date.timetuple().tm_yday
     return(str(year)+str(doy))
 
+
 #Get all the dates available from a given product
-def get_modis_dates(url):
-    dates=[]
+#start and end dates are in the format 'YYYY-MM-DD'. 
+#If both are none include all dates.
+#If only start_date specified include all dates after it.
+#If only end_date specified include all dates up until it.
+def get_modis_dates(url, start_date=None, end_date=None):
+    if start_date != None:
+        start_date=datetime.strptime(start_date, '%Y-%m-%d')
+    else:
+        start_date=datetime.strptime('1900-01-01', '%Y-%m-%d')
+
+    if end_date != None:
+        end_date=datetime.strptime(end_date, '%Y-%m-%d')
+    else:
+        end_date=datetime.strptime('2050-01-01', '%Y-%m-%d')
+
+    date_list=[]
     html=urlopen(url).read()
     for filename in html.splitlines():
         filename=str(filename)
         if '[DIR]' in filename:
             #print(filename.split('href="')[1][0:10])
-            dates.append(filename.split('href="')[1][0:10])
-    return(dates)
+            #dates.append(filename.split('href="')[1][0:10])
+            this_date=filename.split('href="')[1][0:10]
+            if start_date <= datetime.strptime(this_date, '%Y.%m.%d') <= end_date:
+                date_list.append(this_date)
+    return(date_list)
 
 #Get all the filenames from a given product+date and list of tiles wanted. 
 def get_tile_filenames(date_url, tiles):
@@ -58,15 +76,14 @@ h_tile_range=[7,8,9,10,11,12,13,14]
 v_tile_range=[2,3,4,5,6]
 tiles=make_tile_list(h_tile_range, v_tile_range)
 
-all_dates=get_modis_dates(base_dir)
-total_files=len(all_dates)*len(tiles)
+modis_dates=get_modis_dates(base_dir, start_date=None, end_date=end_date)
 
+total_files=len(all_dates)*len(tiles)
 i=1
-for this_date in all_dates:
+for this_date in modis_dates:
     image_files=get_tile_filenames(base_dir+this_date+'/', tiles)
     for this_file in image_files:
         print('downloading '+str(i)+' of '+str(total_files))
         i+=1
         #urlretrieve(base_dir+this_date+'/'+this_file, this_file)
         os.system('wget '+base_dir+this_date+'/'+this_file)
-
