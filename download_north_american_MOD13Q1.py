@@ -76,9 +76,9 @@ h_tile_range=[7,8,9,10,11,12,13,14]
 v_tile_range=[2,3,4,5,6]
 tiles=make_tile_list(h_tile_range, v_tile_range)
 
-modis_dates=get_modis_dates(base_dir, start_date=None, end_date=end_date)
+modis_dates=get_modis_dates(base_dir, start_date=start_date, end_date=end_date)
 
-total_files=len(all_dates)*len(tiles)
+total_files=len(modis_dates)*len(tiles)
 i=1
 for this_date in modis_dates:
     image_files=get_tile_filenames(base_dir+this_date+'/', tiles)
