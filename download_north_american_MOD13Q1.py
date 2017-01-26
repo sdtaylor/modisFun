@@ -1,5 +1,6 @@
 from urllib.request import urlopen
 from urllib.request import urlretrieve
+from getpass import getpass
 import os
 
 #From a list of h and v tile ranges make a list of all tiles in that grid
@@ -65,18 +66,22 @@ def get_tile_filenames(date_url, tiles):
 #########################################################################
 
 parent_dir='http://e4ftl01.cr.usgs.gov/MOLT/'
-product='MOD13Q1.005'
+save_dir = '/home/shawn/data/MOD13Q1/'
+product='MOD13Q1.006'
 
 base_dir=parent_dir+product+'/'
 
-start_date='2013-01-01'
-end_date='2015-12-31'
+start_date='2000-01-01'
+end_date='2017-01-31'
 
 h_tile_range=[7,8,9,10,11,12,13,14]
 v_tile_range=[2,3,4,5,6]
 tiles=make_tile_list(h_tile_range, v_tile_range)
 
 modis_dates=get_modis_dates(base_dir, start_date=start_date, end_date=end_date)
+
+username = input('NASA EarthLogin username: ')
+password  = getpass('NASA Earthlogin password: ')
 
 total_files=len(modis_dates)*len(tiles)
 i=1
@@ -85,5 +90,4 @@ for this_date in modis_dates:
     for this_file in image_files:
         print('downloading '+str(i)+' of '+str(total_files))
         i+=1
-        #urlretrieve(base_dir+this_date+'/'+this_file, this_file)
-        os.system('wget '+base_dir+this_date+'/'+this_file)
+        os.system('wget --user={0} --password={1} -P {2} {3}{4}/{5}'.format(username, password, save_dir, base_dir, this_date, this_file))
